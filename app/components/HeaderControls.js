@@ -30,7 +30,7 @@ export default function HeaderControls({
         />
       </div>
 
-      <nav className={`${isDark ? 'border-white/10 bg-neutral-950/90' : 'border-white/80 bg-white/[0.88]'} liquid-header sticky top-0 z-40 border-b px-4 py-3`}>
+      <nav className={`${isDark ? 'border-white/10 bg-neutral-950/90' : 'border-white/80 bg-white/[0.88]'} liquid-header sticky top-0 z-40 border-b px-5 py-3 sm:px-6 lg:px-8`}>
         <div className="mx-auto flex max-w-7xl flex-col gap-3">
           <div className="flex flex-col gap-3 pr-36 xl:flex-row xl:items-center xl:justify-between">
             <div>

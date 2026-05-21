@@ -47,7 +47,7 @@ export default function Home() {
         onSuggestionSelect={performSearch}
       />
 
-      <main className="mx-auto max-w-7xl px-4 pb-12 pt-8">
+      <main className="mx-auto max-w-7xl px-5 pb-12 pt-8 sm:px-6 lg:px-8">
         <section className="mb-6">
           <p className={`${isDark ? 'text-stone-400' : 'text-neutral-500'} max-w-2xl text-sm leading-6`}>
             {t.viewSubtitle}
