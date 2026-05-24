@@ -6,19 +6,10 @@ import { fetchJsonWithTimeout } from '../lib/fetchJson';
 import { CURRENCIES, formatMarketCap } from '../lib/formatters';
 import {
   DEFAULT_LANGUAGE,
-  isSupportedLanguage,
   TRANSLATIONS,
   detectBrowserLanguage,
-  saveLanguagePreference,
   subscribeToLanguagePreference,
 } from '../lib/i18n';
-
-function getInitialSelectedLanguage() {
-  if (typeof window === 'undefined') return '';
-
-  const urlLanguage = new URLSearchParams(window.location.search).get('lang');
-  return isSupportedLanguage(urlLanguage) ? urlLanguage : '';
-}
 
 export default function useStockDashboard() {
   const [stockData, setStockData] = useState([]);
@@ -34,7 +25,7 @@ export default function useStockDashboard() {
     detectBrowserLanguage,
     () => ''
   );
-  const [selectedLanguage, setSelectedLanguage] = useState(getInitialSelectedLanguage);
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [currency, setCurrency] = useState(CURRENCIES.USD);
 
   const languageReady = Boolean(selectedLanguage || detectedLanguage);
@@ -134,11 +125,6 @@ export default function useStockDashboard() {
     setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark');
   }, []);
 
-  const handleLanguageChange = useCallback((nextLanguage) => {
-    setSelectedLanguage(nextLanguage);
-    saveLanguagePreference(nextLanguage);
-  }, []);
-
   const closeModal = useCallback(() => {
     setModalOpen(false);
   }, []);
@@ -159,7 +145,7 @@ export default function useStockDashboard() {
     t,
     exchangeRates,
     setSearchQuery,
-    setSelectedLanguage: handleLanguageChange,
+    setSelectedLanguage,
     setCurrency,
     toggleTheme,
     handleSearch,
