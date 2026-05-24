@@ -18,6 +18,7 @@ export default function Home() {
     modalData,
     isDark,
     language,
+    languageReady,
     currency,
     t,
     exchangeRates,
@@ -63,6 +64,7 @@ export default function Home() {
           loadErrorKey={loadErrorKey}
           currency={currency}
           language={language}
+          languageReady={languageReady}
           exchangeRates={exchangeRates}
         />
       </main>

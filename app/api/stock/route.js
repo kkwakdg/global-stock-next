@@ -41,11 +41,6 @@ function chunkArray(items, size) {
     return chunks;
 }
 
-function formatTrillion(value) {
-    if (!Number.isFinite(value) || value <= 0) return '데이터 없음';
-    return `$${(value / 1e12).toFixed(2)} T`;
-}
-
 function formatPrice(value, currency = 'USD') {
     if (!Number.isFinite(value)) return '데이터 없음';
 
@@ -54,6 +49,11 @@ function formatPrice(value, currency = 'USD') {
     }
 
     return `$${value.toFixed(2)}`;
+}
+
+function formatTrillion(value) {
+    if (!Number.isFinite(value) || value <= 0) return '데이터 없음';
+    return `$${(value / 1e12).toFixed(2)} T`;
 }
 
 function formatChangePercent(value) {
@@ -70,6 +70,24 @@ function getMarketCapInUsd(stock, krwExchangeRate) {
     if (stock.symbol?.endsWith('.KS')) return rawMarketCap / krwExchangeRate;
 
     return rawMarketCap;
+}
+
+function formatStock(stock, krwExchangeRate, exchangeRates) {
+    const marketCapUsd = getMarketCapInUsd(stock, krwExchangeRate);
+    const changePercent = Number(stock.regularMarketChangePercent);
+
+    return {
+        name: stock.longName || stock.shortName || stock.symbol,
+        ticker: stock.symbol,
+        marketCapUsdTrillions: marketCapUsd / 1e12,
+        marketCap: formatTrillion(marketCapUsd),
+        priceNumber: stock.regularMarketPrice,
+        price: formatPrice(stock.regularMarketPrice, stock.currency),
+        chg: formatChangePercent(changePercent),
+        isPositive: Number.isFinite(changePercent) ? changePercent >= 0 : true,
+        exchangeRate: krwExchangeRate.toFixed(1),
+        exchangeRates,
+    };
 }
 
 async function quoteWithFallback(symbols, label) {
@@ -140,22 +158,7 @@ export async function GET(request) {
                 return json({ error: "종목을 찾을 수 없습니다." }, { status: 404 });
             }
 
-            const rawMarketCap = getMarketCapInUsd(stock, currentExchangeRate);
-
-            return json({
-                name: stock.longName || stock.shortName || stock.symbol,
-                ticker: stock.symbol,
-                marketCapUsdTrillions: rawMarketCap / 1e12,
-                marketCap: formatTrillion(rawMarketCap),
-                priceNumber: stock.regularMarketPrice,
-                price: formatPrice(stock.regularMarketPrice, stock.currency),
-                chg: formatChangePercent(stock.regularMarketChangePercent),
-                isPositive: Number.isFinite(stock.regularMarketChangePercent)
-                    ? stock.regularMarketChangePercent >= 0
-                    : true,
-                exchangeRate: currentExchangeRate.toFixed(1),
-                exchangeRates,
-            });
+            return json(formatStock(stock, currentExchangeRate, exchangeRates));
         }
 
         // 모바일 Safari가 기다리다 연결을 끊지 않도록 큰 요청을 작은 묶음으로 나눠 시간 제한을 둡니다.
@@ -180,29 +183,12 @@ export async function GET(request) {
             return json({ error: "불러온 주식 데이터가 없습니다." }, { status: 502 });
         }
 
-        // 데이터 가공 및 변환
-        const formattedData = validStocks.map((stock) => {
-            const rawMarketCap = getMarketCapInUsd(stock, currentExchangeRate);
-
-            const marketCapInTrillions = (rawMarketCap / 1e12).toFixed(2);
-            const changePercent = stock.regularMarketChangePercent ? stock.regularMarketChangePercent.toFixed(2) : '0.00';
-
-            return {
-                name: stock.longName || stock.shortName || stock.symbol,
-                ticker: stock.symbol,
-                marketCapNumber: parseFloat(marketCapInTrillions) || 0,
-                marketCapUsdTrillions: rawMarketCap / 1e12,
-                marketCap: `$${marketCapInTrillions} T`,
-                priceNumber: stock.regularMarketPrice,
-                price: formatPrice(stock.regularMarketPrice, stock.currency),
-                chg: `${parseFloat(changePercent) > 0 ? '+' : ''}${changePercent}%`,
-                isPositive: parseFloat(changePercent) >= 0,
-                exchangeRates,
-            };
-        });
+        const formattedData = validStocks.map((stock) =>
+            formatStock(stock, currentExchangeRate, exchangeRates)
+        );
 
         // 실시간 시총 기준 정렬 및 순위 매기기
-        const sortedData = formattedData.sort((a, b) => b.marketCapNumber - a.marketCapNumber);
+        const sortedData = formattedData.sort((a, b) => b.marketCapUsdTrillions - a.marketCapUsdTrillions);
         const finalData = sortedData.slice(0, TOP_COMPANIES_LIMIT).map((stock, index) => ({
             rank: index + 1,
             ...stock

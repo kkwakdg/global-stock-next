@@ -23,17 +23,19 @@ export default function useStockDashboard() {
   const detectedLanguage = useSyncExternalStore(
     subscribeToLanguagePreference,
     detectBrowserLanguage,
-    () => DEFAULT_LANGUAGE
+    () => ''
   );
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [currency, setCurrency] = useState(CURRENCIES.USD);
 
-  const language = selectedLanguage || detectedLanguage;
+  const languageReady = Boolean(selectedLanguage || detectedLanguage);
+  const language = selectedLanguage || detectedLanguage || DEFAULT_LANGUAGE;
   const t = TRANSLATIONS[language];
   const isDark = theme === 'dark';
+  const stockExchangeRates = stockData[0]?.exchangeRates;
   const exchangeRates = useMemo(
-    () => stockData[0]?.exchangeRates || searchResult?.exchangeRates || {},
-    [searchResult?.exchangeRates, stockData]
+    () => stockExchangeRates || searchResult?.exchangeRates || {},
+    [searchResult?.exchangeRates, stockExchangeRates]
   );
 
   const modalData = useMemo(() => {
@@ -138,6 +140,7 @@ export default function useStockDashboard() {
     modalData,
     isDark,
     language,
+    languageReady,
     currency,
     t,
     exchangeRates,
