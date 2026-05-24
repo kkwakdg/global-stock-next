@@ -1,9 +1,9 @@
 import SortHeaderButton from './SortHeaderButton';
 import StockTableBody from './StockTableBody';
 
-function MobileTableHeader({ t, isDark, sortConfig, onSort, languageReady }) {
+function MobileTableHeader({ t, isDark, sortConfig, onSort, language, languageReady }) {
   return (
-    <div className={`${isDark ? 'border-white/10 bg-stone-900 text-stone-400' : 'border-black/10 bg-white text-neutral-500'} stock-table-head grid min-h-14 grid-cols-[15%_32%_26%_27%] border-b text-xs font-semibold uppercase shadow-sm`}>
+    <div key={language} className={`${isDark ? 'border-white/10 bg-stone-900 text-stone-400' : 'border-black/10 bg-white text-neutral-500'} stock-table-head grid min-h-16 grid-cols-[15%_32%_26%_27%] border-b text-xs font-semibold shadow-sm`}>
       <div className="flex h-full items-center whitespace-nowrap px-2">
         <SortHeaderButton label={t.rank} sortKey="rank" sortConfig={sortConfig} onSort={onSort} align="right" className="gap-1" labelReady={languageReady} />
       </div>
@@ -35,7 +35,7 @@ export default function StockTableMobile({
 }) {
   return (
     <div className="sm:hidden">
-      <MobileTableHeader t={t} isDark={isDark} sortConfig={sortConfig} onSort={onSort} languageReady={languageReady} />
+      <MobileTableHeader t={t} isDark={isDark} sortConfig={sortConfig} onSort={onSort} language={language} languageReady={languageReady} />
 
       <table className="w-full min-w-0 table-fixed border-separate border-spacing-0 text-left">
         <colgroup>

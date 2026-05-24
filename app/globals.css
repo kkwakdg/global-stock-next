@@ -66,10 +66,24 @@ body {
 
 .stock-table-head {
   backface-visibility: hidden;
-  contain: paint;
   isolation: isolate;
   position: sticky;
   top: 0;
   transform: translateZ(0);
   z-index: 30;
+}
+
+.stock-header-label-refresh {
+  animation: stock-header-label-refresh 80ms steps(1, end);
+}
+
+@keyframes stock-header-label-refresh {
+  0%,
+  99% {
+    visibility: hidden;
+  }
+
+  100% {
+    visibility: visible;
+  }
 }

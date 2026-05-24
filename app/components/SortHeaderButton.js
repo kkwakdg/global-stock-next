@@ -20,10 +20,12 @@ export default function SortHeaderButton({
     <button
       type="button"
       onClick={() => onSort(sortKey)}
-      className={`${alignmentClass} ${className} flex min-h-8 w-full items-center gap-1.5 transition hover:text-current`}
+      className={`${alignmentClass} ${className} flex min-h-10 w-full items-center gap-1.5 transition hover:text-current`}
     >
-      <span className={labelReady ? undefined : 'invisible'}>{label}</span>
-      <span className={`${labelReady ? '' : 'invisible'} flex flex-col gap-0.5 text-[8px] leading-none`}>
+      <span key={label} className={`${labelReady ? 'stock-header-label-refresh' : 'invisible'} block min-w-0 max-w-full whitespace-normal break-keep leading-tight`}>
+        {label}
+      </span>
+      <span key={`${label}-sort`} className={`${labelReady ? 'stock-header-label-refresh' : 'invisible'} shrink-0 flex flex-col gap-0.5 text-[8px] leading-none`}>
         <span className={isAscending ? 'opacity-100' : 'opacity-30'}>▲</span>
         <span className={isDescending ? 'opacity-100' : 'opacity-30'}>▼</span>
       </span>
