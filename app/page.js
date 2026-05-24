@@ -1,6 +1,7 @@
 "use client";
 
 import HeaderControls from './components/HeaderControls';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import SearchModal from './components/SearchModal';
 import StockTable from './components/StockTable';
 import useStockDashboard from './hooks/useStockDashboard';
@@ -65,6 +66,8 @@ export default function Home() {
           exchangeRates={exchangeRates}
         />
       </main>
+
+      <ScrollToTopButton isDark={isDark} />
 
       {modalOpen && (
         <SearchModal

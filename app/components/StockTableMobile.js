@@ -1,5 +1,25 @@
 import { getCompanyDisplayName } from '../lib/companyNames';
 import { formatMarketCap } from '../lib/formatters';
+import SortHeaderButton from './SortHeaderButton';
+
+function MobileTableHeader({ t, isDark, sortConfig, onSort }) {
+  return (
+    <div className={`${isDark ? 'border-white/10 bg-stone-900 text-stone-400' : 'border-black/10 bg-white text-neutral-500'} stock-table-head grid min-h-14 grid-cols-[15%_32%_26%_27%] border-b text-xs font-semibold uppercase shadow-sm`}>
+      <div className="flex h-full items-center whitespace-nowrap px-2">
+        <SortHeaderButton label={t.rank} sortKey="rank" sortConfig={sortConfig} onSort={onSort} align="right" className="gap-1" />
+      </div>
+      <div className="flex h-full items-center whitespace-nowrap px-3">
+        <SortHeaderButton label={t.company} sortKey="company" sortConfig={sortConfig} onSort={onSort} className="gap-1" />
+      </div>
+      <div className="flex h-full items-center px-3 leading-tight">
+        <SortHeaderButton label={t.price} sortKey="price" sortConfig={sortConfig} onSort={onSort} align="center" className="gap-1" />
+      </div>
+      <div className="flex h-full items-center px-3 leading-tight">
+        <SortHeaderButton label={t.marketCap} sortKey="marketCap" sortConfig={sortConfig} onSort={onSort} align="center" className="gap-1" />
+      </div>
+    </div>
+  );
+}
 
 export default function StockTableMobile({
   t,
@@ -10,24 +30,20 @@ export default function StockTableMobile({
   currency,
   language,
   exchangeRates,
+  sortConfig,
+  onSort,
 }) {
   return (
     <div className="sm:hidden">
-      <table className="w-full min-w-0 table-fixed text-left border-collapse">
+      <MobileTableHeader t={t} isDark={isDark} sortConfig={sortConfig} onSort={onSort} />
+
+      <table className="w-full min-w-0 table-fixed border-separate border-spacing-0 text-left">
         <colgroup>
-          <col className="w-[11%]" />
-          <col className="w-[35%]" />
-          <col className="w-[27%]" />
+          <col className="w-[15%]" />
+          <col className="w-[32%]" />
+          <col className="w-[26%]" />
           <col className="w-[27%]" />
         </colgroup>
-        <thead>
-          <tr className={`${isDark ? 'border-white/10 text-stone-400' : 'border-black/10 text-neutral-500'} border-b text-xs font-semibold uppercase`}>
-            <th className="px-3 py-4 text-right">{t.rank}</th>
-            <th className="px-3 py-4">{t.company}</th>
-            <th className="px-3 py-4 text-right">{t.price}</th>
-            <th className="px-3 py-4 text-center">{t.marketCap}</th>
-          </tr>
-        </thead>
         <tbody className={`${isDark ? 'divide-white/10' : 'divide-black/10'} divide-y text-sm`}>
           {loading ? (
             <tr>
@@ -39,7 +55,7 @@ export default function StockTableMobile({
             Array.isArray(stocks) && stocks.length > 0 ? (
               stocks.map((stock) => (
                 <tr key={stock.ticker} className={isDark ? 'hover:bg-white/[0.04]' : 'hover:bg-neutral-950/[0.03]'}>
-                  <td className={`${isDark ? 'text-stone-500' : 'text-neutral-400'} px-3 py-4 text-right align-middle text-sm font-semibold tabular-nums`}>
+                  <td className={`${isDark ? 'text-stone-500' : 'text-neutral-400'} px-2 py-4 text-right align-middle text-sm font-semibold tabular-nums`}>
                     {stock.rank}
                   </td>
                   <td className="px-3 py-4">
@@ -52,8 +68,8 @@ export default function StockTableMobile({
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 py-4 text-right">
-                    <div className="flex flex-col items-end gap-1.5">
+                  <td className="px-3 py-4 text-center">
+                    <div className="flex flex-col items-center gap-1.5">
                       <span className="whitespace-nowrap text-sm font-semibold tabular-nums">
                         {stock.price || t.noData}
                       </span>

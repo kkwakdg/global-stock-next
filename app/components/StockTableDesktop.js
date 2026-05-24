@@ -1,5 +1,25 @@
 import { getCompanyDisplayName } from '../lib/companyNames';
 import { formatMarketCap } from '../lib/formatters';
+import SortHeaderButton from './SortHeaderButton';
+
+function DesktopTableHeader({ t, isDark, sortConfig, onSort }) {
+  return (
+    <div className={`${isDark ? 'border-white/10 bg-stone-900 text-stone-400' : 'border-black/10 bg-white text-neutral-500'} stock-table-head grid min-h-14 min-w-[680px] grid-cols-[12%_30%_29%_29%] border-b text-xs font-semibold uppercase shadow-sm`}>
+      <div className="flex h-full items-center pl-0 pr-6 lg:pr-8">
+        <SortHeaderButton label={t.rank} sortKey="rank" sortConfig={sortConfig} onSort={onSort} align="right" />
+      </div>
+      <div className="flex h-full items-center px-6 lg:px-8">
+        <SortHeaderButton label={t.company} sortKey="company" sortConfig={sortConfig} onSort={onSort} />
+      </div>
+      <div className="flex h-full items-center px-6 lg:px-8">
+        <SortHeaderButton label={t.price} sortKey="price" sortConfig={sortConfig} onSort={onSort} align="right" />
+      </div>
+      <div className="flex h-full items-center pl-6 pr-0 lg:pl-8">
+        <SortHeaderButton label={t.marketCap} sortKey="marketCap" sortConfig={sortConfig} onSort={onSort} align="center" />
+      </div>
+    </div>
+  );
+}
 
 export default function StockTableDesktop({
   t,
@@ -10,24 +30,20 @@ export default function StockTableDesktop({
   currency,
   language,
   exchangeRates,
+  sortConfig,
+  onSort,
 }) {
   return (
-    <div className="hidden overflow-x-auto sm:block">
-        <table className="w-full min-w-[680px] table-fixed text-left border-collapse">
-          <colgroup>
+    <div className="hidden sm:block">
+      <DesktopTableHeader t={t} isDark={isDark} sortConfig={sortConfig} onSort={onSort} />
+
+      <table className="w-full min-w-[680px] table-fixed border-separate border-spacing-0 text-left">
+        <colgroup>
           <col className="w-[12%]" />
           <col className="w-[30%]" />
           <col className="w-[29%]" />
           <col className="w-[29%]" />
         </colgroup>
-        <thead>
-          <tr className={`${isDark ? 'border-white/10 text-stone-400' : 'border-black/10 text-neutral-500'} border-b text-xs font-semibold uppercase`}>
-            <th className="py-5 pl-0 pr-6 text-right lg:pr-8">{t.rank}</th>
-            <th className="px-6 py-5 lg:px-8">{t.company}</th>
-            <th className="px-6 py-5 text-right lg:px-8">{t.price}</th>
-            <th className="py-5 pl-6 pr-0 text-center lg:pl-8">{t.marketCap}</th>
-          </tr>
-        </thead>
         <tbody className={`${isDark ? 'divide-white/10' : 'divide-black/10'} divide-y text-sm`}>
           {loading ? (
             <tr>

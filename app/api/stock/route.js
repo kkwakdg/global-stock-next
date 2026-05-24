@@ -147,6 +147,7 @@ export async function GET(request) {
                 ticker: stock.symbol,
                 marketCapUsdTrillions: rawMarketCap / 1e12,
                 marketCap: formatTrillion(rawMarketCap),
+                priceNumber: stock.regularMarketPrice,
                 price: formatPrice(stock.regularMarketPrice, stock.currency),
                 chg: formatChangePercent(stock.regularMarketChangePercent),
                 isPositive: Number.isFinite(stock.regularMarketChangePercent)
@@ -192,6 +193,7 @@ export async function GET(request) {
                 marketCapNumber: parseFloat(marketCapInTrillions) || 0,
                 marketCapUsdTrillions: rawMarketCap / 1e12,
                 marketCap: `$${marketCapInTrillions} T`,
+                priceNumber: stock.regularMarketPrice,
                 price: formatPrice(stock.regularMarketPrice, stock.currency),
                 chg: `${parseFloat(changePercent) > 0 ? '+' : ''}${changePercent}%`,
                 isPositive: parseFloat(changePercent) >= 0,

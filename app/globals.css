@@ -63,3 +63,9 @@ body {
 .apple-radius {
   border-radius: var(--apple-control-radius);
 }
+
+.stock-table-head {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
