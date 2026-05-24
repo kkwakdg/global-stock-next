@@ -5,12 +5,16 @@ import Icon from './Icon';
 export default function QuickSettings({
   t,
   isDark,
+  idPrefix = 'header',
   language,
   currency,
   onThemeToggle,
   onLanguageChange,
   onCurrencyChange,
 }) {
+  const languageSelectId = `${idPrefix}-language-select`;
+  const currencySelectId = `${idPrefix}-currency-select`;
+
   return (
     <div className={`${isDark ? 'liquid-surface-dark bg-white/10 ring-white/10' : 'liquid-surface bg-white/[0.82] ring-white/80'} apple-radius flex w-fit items-center gap-1 p-1 ring-1`}>
       <button
@@ -25,9 +29,9 @@ export default function QuickSettings({
 
       <div className="apple-radius relative grid h-9 w-9 place-items-center">
         <Icon name="globe" className={`${isDark ? 'text-stone-100' : 'text-neutral-900'} h-4 w-4`} />
-        <label className="sr-only" htmlFor="language-select">{t.language}</label>
+        <label className="sr-only" htmlFor={languageSelectId}>{t.language}</label>
         <select
-          id="language-select"
+          id={languageSelectId}
           value={language}
           onChange={(e) => onLanguageChange(e.target.value)}
           className="apple-radius absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
@@ -41,9 +45,9 @@ export default function QuickSettings({
 
       <div className="apple-radius relative grid h-9 w-9 place-items-center">
         <Icon name="currency" className={`${isDark ? 'text-stone-100' : 'text-neutral-900'} h-4 w-4`} />
-        <label className="sr-only" htmlFor="currency-select">{t.currency}</label>
+        <label className="sr-only" htmlFor={currencySelectId}>{t.currency}</label>
         <select
-          id="currency-select"
+          id={currencySelectId}
           value={currency}
           onChange={(e) => onCurrencyChange(e.target.value)}
           className="apple-radius absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
