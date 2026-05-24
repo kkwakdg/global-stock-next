@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from './components/Footer';
 import HeaderControls from './components/HeaderControls';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import SearchModal from './components/SearchModal';
@@ -68,6 +69,8 @@ export default function Home() {
           exchangeRates={exchangeRates}
         />
       </main>
+
+      <Footer isDark={isDark} language={language} />
 
       <ScrollToTopButton isDark={isDark} />
 

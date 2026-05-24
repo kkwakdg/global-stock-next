@@ -5,9 +5,42 @@ export const LANGUAGES = {
 };
 
 export const DEFAULT_LANGUAGE = 'en';
+export const LANGUAGE_STORAGE_KEY = 'global-market-cap-language';
+
+export function isSupportedLanguage(language) {
+  return Boolean(LANGUAGES[language]);
+}
+
+export function normalizeLanguage(language) {
+  return isSupportedLanguage(language) ? language : DEFAULT_LANGUAGE;
+}
+
+export function getStoredLanguagePreference() {
+  if (typeof window === 'undefined') return '';
+
+  try {
+    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return isSupportedLanguage(storedLanguage) ? storedLanguage : '';
+  } catch {
+    return '';
+  }
+}
+
+export function saveLanguagePreference(language) {
+  if (typeof window === 'undefined' || !isSupportedLanguage(language)) return;
+
+  try {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    window.dispatchEvent(new CustomEvent('language-preference-change'));
+  } catch {
+  }
+}
 
 export function detectBrowserLanguage() {
   if (typeof window === 'undefined') return DEFAULT_LANGUAGE;
+
+  const storedLanguage = getStoredLanguagePreference();
+  if (storedLanguage) return storedLanguage;
 
   const browserLanguages = navigator.languages?.length
     ? navigator.languages
@@ -21,8 +54,17 @@ export function detectBrowserLanguage() {
   return DEFAULT_LANGUAGE;
 }
 
-export function subscribeToLanguagePreference() {
-  return () => {};
+export function subscribeToLanguagePreference(onStoreChange) {
+  if (typeof window === 'undefined') return () => {};
+
+  const notify = () => onStoreChange();
+  window.addEventListener('storage', notify);
+  window.addEventListener('language-preference-change', notify);
+
+  return () => {
+    window.removeEventListener('storage', notify);
+    window.removeEventListener('language-preference-change', notify);
+  };
 }
 
 export const TRANSLATIONS = {
