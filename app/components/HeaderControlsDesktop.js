@@ -35,7 +35,7 @@ export default function HeaderControlsDesktop({
         </div>
 
         <div className="mx-auto flex max-w-7xl flex-col gap-3">
-          <div className="flex flex-col gap-3 pr-36 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-3 pr-44 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <p className={`${isDark ? 'text-stone-500' : 'text-neutral-500'} text-xs font-medium uppercase`}>
                 {t.appName}
