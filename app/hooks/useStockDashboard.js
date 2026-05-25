@@ -18,6 +18,98 @@ const CURRENCY_BY_LANGUAGE = {
   ja: CURRENCIES.JPY,
 };
 
+function normalizeSearchValue(value) {
+  return String(value || '')
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/[.,]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function compactSearchValue(value) {
+  return normalizeSearchValue(value).replace(/[^a-z0-9가-힣ぁ-んァ-ン一-龥]/g, '');
+}
+
+function getSearchLabels(stock, language) {
+  return [
+    getCompanyDisplayName(stock, language),
+    stock?.name,
+    stock?.ticker,
+  ].filter(Boolean);
+}
+
+function getBestSearchMatch(stock, query, language) {
+  const normalizedQuery = normalizeSearchValue(query);
+  const compactQuery = compactSearchValue(query);
+  const labels = getSearchLabels(stock, language);
+  const matches = labels
+    .map((label) => {
+      const normalizedLabel = normalizeSearchValue(label);
+      const compactLabel = compactSearchValue(label);
+      const normalizedIndex = normalizedLabel.indexOf(normalizedQuery);
+      const compactIndex = compactLabel.indexOf(compactQuery);
+      const startsWithQuery = normalizedLabel.startsWith(normalizedQuery) || compactLabel.startsWith(compactQuery);
+      const startsAtWord = normalizedIndex === 0 || normalizedLabel.includes(` ${normalizedQuery}`);
+      const matchIndex = normalizedIndex >= 0 ? normalizedIndex : compactIndex;
+
+      if (matchIndex < 0) return null;
+
+      return {
+        label,
+        score: [
+          startsWithQuery ? 0 : 1,
+          startsAtWord ? 0 : 1,
+          matchIndex,
+          Math.abs(compactLabel.length - compactQuery.length),
+        ],
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      for (let index = 0; index < a.score.length; index += 1) {
+        if (a.score[index] !== b.score[index]) {
+          return a.score[index] - b.score[index];
+        }
+      }
+
+      return a.label.localeCompare(b.label, language, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+
+  return matches[0] || { label: labels[0] || '', score: [1, 1, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER] };
+}
+
+function getMatchingTableStocks(stocks, query, language) {
+  if (!Array.isArray(stocks)) return [];
+
+  return stocks
+    .filter((stock) => companyMatchesQuery(stock, query))
+    .sort((a, b) => {
+      const aMatch = getBestSearchMatch(a, query, language);
+      const bMatch = getBestSearchMatch(b, query, language);
+
+      for (let index = 0; index < aMatch.score.length; index += 1) {
+        if (aMatch.score[index] !== bMatch.score[index]) {
+          return aMatch.score[index] - bMatch.score[index];
+        }
+      }
+
+      const labelSort = aMatch.label.localeCompare(bMatch.label, language, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+
+      if (labelSort !== 0) return labelSort;
+
+      return String(a.ticker || '').localeCompare(String(b.ticker || ''), 'en', {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+}
+
 export default function useStockDashboard() {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,8 +158,7 @@ export default function useStockDashboard() {
     const query = searchQuery.trim();
     if (query.length < 1 || !Array.isArray(stockData)) return [];
 
-    return stockData
-      .filter((stock) => companyMatchesQuery(stock, query))
+    return getMatchingTableStocks(stockData, query, language)
       .slice(0, 6)
       .map((stock) => ({
         ticker: stock.ticker,
@@ -101,13 +192,37 @@ export default function useStockDashboard() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!modalOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setModalOpen(false);
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [modalOpen]);
+
   const performSearch = useCallback(async (rawQuery) => {
     const query = rawQuery.trim();
     if (!query) return;
 
     setSearchLoading(true);
     try {
-      const data = await fetchJsonWithTimeout(`/api/stock?search=${encodeURIComponent(query)}&ts=${Date.now()}`);
+      const [data] = getMatchingTableStocks(stockData, query, language);
+
+      if (!data) {
+        throw new Error(t.searchError);
+      }
+
       setSearchResult(data);
       setSearchQuery('');
       setModalOpen(true);
@@ -119,7 +234,7 @@ export default function useStockDashboard() {
     } finally {
       setSearchLoading(false);
     }
-  }, [t.searchError, t.searchTimeout]);
+  }, [language, stockData, t.searchError, t.searchTimeout]);
 
   const openStockModal = useCallback((stock) => {
     if (!stock) return;
