@@ -67,9 +67,9 @@ function SettingPicker({
         aria-label={`${label}: ${selectedOption?.label || value}`}
         aria-controls={open ? menuId : undefined}
         onClick={() => onOpenChange(!open)}
-        className={`${isDark ? 'text-stone-100 hover:bg-white/[0.12] focus-visible:ring-white/[0.3]' : 'text-neutral-900 hover:bg-white/[0.85] focus-visible:ring-neutral-900/[0.15]'} apple-control relative grid h-9 w-9 place-items-center text-sm font-semibold tabular-nums transition focus:outline-none focus-visible:ring-2`}
+        className={`${isDark ? 'text-stone-100 hover:bg-white/[0.12] focus-visible:ring-white/[0.3]' : 'text-neutral-900 hover:bg-white/[0.85] focus-visible:ring-neutral-900/[0.15]'} apple-control relative grid h-9 w-9 touch-manipulation place-items-center overflow-hidden text-sm font-semibold tabular-nums transition focus:outline-none focus-visible:ring-2`}
       >
-        <span className={`absolute inset-1 rounded-full bg-gradient-to-br ${accentClass} opacity-0 blur-sm transition-opacity ${open ? 'opacity-45' : 'opacity-0'}`} />
+        <span className={`pointer-events-none absolute inset-1 rounded-full bg-gradient-to-br ${accentClass} opacity-0 transition-opacity ${open ? 'opacity-30' : 'opacity-0'}`} />
         {icon === 'currency' ? (
           <span className="relative leading-none">
             {CURRENCY_SYMBOLS[value] || value}
@@ -99,7 +99,7 @@ function SettingPicker({
                   onChange(option.value);
                   onOpenChange(false);
                 }}
-                className={`${selected ? (isDark ? 'bg-white/[0.12] text-white' : 'bg-neutral-950/[0.07] text-neutral-950') : (isDark ? 'text-stone-300 hover:bg-white/[0.08]' : 'text-neutral-600 hover:bg-neutral-950/[0.04]')} flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium transition`}
+                className={`${selected ? (isDark ? 'bg-white/[0.12] text-white' : 'bg-neutral-950/[0.07] text-neutral-950') : (isDark ? 'text-stone-300 hover:bg-white/[0.08]' : 'text-neutral-600 hover:bg-neutral-950/[0.04]')} flex w-full touch-manipulation items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium transition`}
               >
                 <span>{option.label}</span>
                 <span className={`${selected ? 'opacity-100' : 'opacity-0'} grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br ${accentClass} text-neutral-950 transition-opacity`}>
