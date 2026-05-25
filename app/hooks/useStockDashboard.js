@@ -6,19 +6,11 @@ import { fetchJsonWithTimeout } from '../lib/fetchJson';
 import { CURRENCIES, formatMarketCap } from '../lib/formatters';
 import {
   DEFAULT_LANGUAGE,
-  isSupportedLanguage,
   TRANSLATIONS,
   detectBrowserLanguage,
   saveLanguagePreference,
   subscribeToLanguagePreference,
 } from '../lib/i18n';
-
-function getInitialSelectedLanguage() {
-  if (typeof window === 'undefined') return '';
-
-  const urlLanguage = new URLSearchParams(window.location.search).get('lang');
-  return isSupportedLanguage(urlLanguage) ? urlLanguage : '';
-}
 
 export default function useStockDashboard() {
   const [stockData, setStockData] = useState([]);
@@ -32,13 +24,11 @@ export default function useStockDashboard() {
   const detectedLanguage = useSyncExternalStore(
     subscribeToLanguagePreference,
     detectBrowserLanguage,
-    () => ''
+    () => DEFAULT_LANGUAGE
   );
-  const [selectedLanguage, setSelectedLanguage] = useState(getInitialSelectedLanguage);
   const [currency, setCurrency] = useState(CURRENCIES.USD);
 
-  const languageReady = Boolean(selectedLanguage || detectedLanguage);
-  const language = selectedLanguage || detectedLanguage || DEFAULT_LANGUAGE;
+  const language = detectedLanguage || DEFAULT_LANGUAGE;
   const t = TRANSLATIONS[language];
   const isDark = theme === 'dark';
   const stockExchangeRates = stockData[0]?.exchangeRates;
@@ -135,7 +125,6 @@ export default function useStockDashboard() {
   }, []);
 
   const handleLanguageChange = useCallback((nextLanguage) => {
-    setSelectedLanguage(nextLanguage);
     saveLanguagePreference(nextLanguage);
   }, []);
 
@@ -154,7 +143,6 @@ export default function useStockDashboard() {
     modalData,
     isDark,
     language,
-    languageReady,
     currency,
     t,
     exchangeRates,
