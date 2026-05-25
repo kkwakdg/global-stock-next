@@ -8,6 +8,7 @@ const BODY_STYLES = {
     companyGap: 'gap-2',
     companyName: 'truncate text-base font-semibold leading-tight',
     ticker: 'apple-radius w-fit px-2.5 py-1 text-[11px] font-semibold ring-1',
+    flag: 'apple-radius grid h-6 w-7 place-items-center text-base ring-1',
     priceCell: 'px-6 py-5 text-right lg:px-8',
     priceWrap: 'items-end gap-2',
     price: 'text-base font-semibold tabular-nums',
@@ -20,6 +21,7 @@ const BODY_STYLES = {
     companyGap: 'gap-1.5',
     companyName: 'truncate text-sm font-semibold leading-tight',
     ticker: 'apple-radius w-fit px-2 py-0.5 text-[10px] font-semibold ring-1',
+    flag: 'apple-radius grid h-5 w-6 place-items-center text-sm ring-1',
     priceCell: 'px-3 py-4 text-center',
     priceWrap: 'items-center gap-1.5',
     price: 'whitespace-nowrap text-sm font-semibold tabular-nums',
@@ -104,8 +106,19 @@ export default function StockTableBody({
                 <span className={`${isDark ? 'text-stone-100' : 'text-neutral-950'} ${styles.companyName}`}>
                   {getCompanyDisplayName(stock, language)}
                 </span>
-                <span className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}>
-                  {stock.ticker}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}>
+                    {stock.ticker}
+                  </span>
+                  {stock.listingFlag && (
+                    <span
+                      className={`${isDark ? 'bg-white/10 ring-white/10' : 'bg-neutral-950/[0.04] ring-black/5'} ${styles.flag}`}
+                      aria-label={stock.listingCountry?.name || undefined}
+                      title={stock.listingCountry?.name || undefined}
+                    >
+                      {stock.listingFlag}
+                    </span>
+                  )}
                 </span>
               </div>
             </td>
