@@ -21,6 +21,8 @@ const yahooFinance = new YahooFinance({
 const DEFAULT_EXCHANGE_RATES = {
   KRW: 1380,
   JPY: 155,
+  CNY: 7.2,
+  HKD: 7.8,
 };
 
 async function quoteWithFallback(symbols, label) {
@@ -57,14 +59,23 @@ async function searchTickerByCompanyName(query) {
 }
 
 async function getExchangeRates() {
-  const [krwExchangeRateResult, jpyExchangeRateResult] = await Promise.all([
+  const [
+    krwExchangeRateResult,
+    jpyExchangeRateResult,
+    cnyExchangeRateResult,
+    hkdExchangeRateResult,
+  ] = await Promise.all([
     quoteWithFallback('USDKRW=X', '원/달러 환율 조회'),
     quoteWithFallback('USDJPY=X', '엔/달러 환율 조회'),
+    quoteWithFallback('USDCNY=X', '위안/달러 환율 조회'),
+    quoteWithFallback('USDHKD=X', '홍콩달러/달러 환율 조회'),
   ]);
 
   return {
     KRW: krwExchangeRateResult?.regularMarketPrice || DEFAULT_EXCHANGE_RATES.KRW,
     JPY: jpyExchangeRateResult?.regularMarketPrice || DEFAULT_EXCHANGE_RATES.JPY,
+    CNY: cnyExchangeRateResult?.regularMarketPrice || DEFAULT_EXCHANGE_RATES.CNY,
+    HKD: hkdExchangeRateResult?.regularMarketPrice || DEFAULT_EXCHANGE_RATES.HKD,
   };
 }
 
@@ -95,7 +106,7 @@ async function getTopStocks(exchangeRates) {
   );
   const validStocks = stockResultGroups
     .flat()
-    .filter((stock) => isValidStock(stock, exchangeRates.KRW));
+    .filter((stock) => isValidStock(stock, exchangeRates));
 
   if (validStocks.length === 0) {
     return null;
