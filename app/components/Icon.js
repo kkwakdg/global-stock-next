@@ -18,6 +18,12 @@ export default function Icon({ name, className = 'h-4 w-4' }) {
     currency: (
       <path d="M12 3v18M16.5 7.5A4.2 4.2 0 0 0 12.7 6H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-2.7a4.2 4.2 0 0 1-3.8-1.5" />
     ),
+    chevronDown: (
+      <path d="m6 9 6 6 6-6" />
+    ),
+    check: (
+      <path d="m5 12 4 4 10-10" />
+    ),
   };
 
   return (

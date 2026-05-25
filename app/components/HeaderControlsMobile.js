@@ -36,7 +36,7 @@ export default function HeaderControlsMobile({
 
         <div className="mx-auto flex max-w-7xl flex-col gap-3">
           <div className="flex flex-col gap-3">
-            <div className="pr-36">
+            <div className="pr-44">
               <h1 className="mt-1 text-3xl font-semibold leading-tight">
                 {t.viewTitle}
               </h1>

@@ -12,6 +12,12 @@ import {
   subscribeToLanguagePreference,
 } from '../lib/i18n';
 
+const CURRENCY_BY_LANGUAGE = {
+  ko: CURRENCIES.KRW,
+  en: CURRENCIES.USD,
+  ja: CURRENCIES.JPY,
+};
+
 export default function useStockDashboard() {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,9 +32,10 @@ export default function useStockDashboard() {
     detectBrowserLanguage,
     () => DEFAULT_LANGUAGE
   );
-  const [currency, setCurrency] = useState(CURRENCIES.USD);
+  const [currencyOverride, setCurrencyOverride] = useState('');
 
   const language = detectedLanguage || DEFAULT_LANGUAGE;
+  const currency = currencyOverride || CURRENCY_BY_LANGUAGE[language] || CURRENCIES.USD;
   const t = TRANSLATIONS[language];
   const isDark = theme === 'dark';
   const stockExchangeRates = stockData[0]?.exchangeRates;
@@ -132,6 +139,7 @@ export default function useStockDashboard() {
   }, []);
 
   const handleLanguageChange = useCallback((nextLanguage) => {
+    setCurrencyOverride(CURRENCY_BY_LANGUAGE[nextLanguage] || CURRENCIES.USD);
     saveLanguagePreference(nextLanguage);
   }, []);
 
@@ -155,7 +163,7 @@ export default function useStockDashboard() {
     exchangeRates,
     setSearchQuery,
     setSelectedLanguage: handleLanguageChange,
-    setCurrency,
+    setCurrency: setCurrencyOverride,
     toggleTheme,
     handleSearch,
     performSearch,
