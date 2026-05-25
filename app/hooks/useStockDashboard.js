@@ -114,6 +114,13 @@ export default function useStockDashboard() {
     }
   }, [t.searchError, t.searchTimeout]);
 
+  const openStockModal = useCallback((stock) => {
+    if (!stock) return;
+
+    setSearchResult(stock);
+    setModalOpen(true);
+  }, []);
+
   const handleSearch = useCallback(async (e) => {
     e.preventDefault();
     e.currentTarget.querySelector('input')?.blur();
@@ -152,6 +159,7 @@ export default function useStockDashboard() {
     toggleTheme,
     handleSearch,
     performSearch,
+    openStockModal,
     closeModal,
   };
 }

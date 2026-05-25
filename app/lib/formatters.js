@@ -12,23 +12,52 @@ const LOCALE_BY_LANGUAGE = {
   ja: 'ja-JP',
 };
 
-export function formatMarketCap(usdTrillions, currency, exchangeRates, language) {
-  if (!Number.isFinite(usdTrillions) || usdTrillions <= 0) {
-    return TRANSLATIONS[language].noData;
+function getNoDataText(language) {
+  return TRANSLATIONS[language]?.noData || TRANSLATIONS.en.noData;
+}
+
+function formatKrwMarketCap(usdTrillions, exchangeRates, locale) {
+  const krwTrillions = usdTrillions * Number(exchangeRates?.KRW);
+
+  if (!Number.isFinite(krwTrillions) || krwTrillions <= 0) {
+    return null;
   }
 
-  const locale = LOCALE_BY_LANGUAGE[language];
-
-  if (currency === CURRENCIES.KRW) {
-    const value = usdTrillions * (exchangeRates?.KRW || 0);
+  if (krwTrillions >= 1) {
     return `${new Intl.NumberFormat(locale, {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
-    }).format(value)}조`;
+    }).format(krwTrillions)}조`;
+  }
+
+  return `${new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(krwTrillions * 10000)}억`;
+}
+
+export function formatMarketCap(usdTrillions, currency, exchangeRates, language) {
+  if (!Number.isFinite(usdTrillions) || usdTrillions <= 0) {
+    return getNoDataText(language);
+  }
+
+  const locale = LOCALE_BY_LANGUAGE[language] || LOCALE_BY_LANGUAGE.en;
+
+  if (language === 'ko') {
+    return formatKrwMarketCap(usdTrillions, exchangeRates, locale) || getNoDataText(language);
+  }
+
+  if (currency === CURRENCIES.KRW) {
+    return formatKrwMarketCap(usdTrillions, exchangeRates, locale) || getNoDataText(language);
   }
 
   if (currency === CURRENCIES.JPY) {
-    const value = usdTrillions * (exchangeRates?.JPY || 0);
+    const value = usdTrillions * Number(exchangeRates?.JPY);
+
+    if (!Number.isFinite(value) || value <= 0) {
+      return getNoDataText(language);
+    }
+
     return `${new Intl.NumberFormat(locale, {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,

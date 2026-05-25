@@ -28,6 +28,7 @@ export default function Home() {
     toggleTheme,
     handleSearch,
     performSearch,
+    openStockModal,
     closeModal,
   } = useStockDashboard();
 
@@ -65,6 +66,7 @@ export default function Home() {
           currency={currency}
           language={language}
           exchangeRates={exchangeRates}
+          onStockSelect={openStockModal}
         />
       </main>
 

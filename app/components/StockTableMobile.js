@@ -1,24 +1,5 @@
-import SortHeaderButton from './SortHeaderButton';
+import StockTableHeader from './StockTableHeader';
 import StockTableBody from './StockTableBody';
-
-function MobileTableHeader({ t, isDark, sortConfig, onSort, language }) {
-  return (
-    <div key={language} className={`${isDark ? 'border-white/10 bg-stone-900 text-stone-400' : 'border-black/10 bg-white text-neutral-500'} stock-table-head grid min-h-16 grid-cols-[15%_32%_26%_27%] border-b text-xs font-semibold shadow-sm`}>
-      <div className="flex h-full items-center whitespace-nowrap px-2">
-        <SortHeaderButton label={t.rank} sortKey="rank" sortConfig={sortConfig} onSort={onSort} align="right" className="gap-1" />
-      </div>
-      <div className="flex h-full items-center whitespace-nowrap px-3">
-        <SortHeaderButton label={t.company} sortKey="company" sortConfig={sortConfig} onSort={onSort} className="gap-1" />
-      </div>
-      <div className="flex h-full items-center px-3 leading-tight">
-        <SortHeaderButton label={t.price} sortKey="price" sortConfig={sortConfig} onSort={onSort} align="center" className="gap-1" />
-      </div>
-      <div className="flex h-full items-center px-3 leading-tight">
-        <SortHeaderButton label={t.marketCap} sortKey="marketCap" sortConfig={sortConfig} onSort={onSort} align="center" className="gap-1" />
-      </div>
-    </div>
-  );
-}
 
 export default function StockTableMobile({
   t,
@@ -31,10 +12,18 @@ export default function StockTableMobile({
   exchangeRates,
   sortConfig,
   onSort,
+  onStockSelect,
 }) {
   return (
     <div className="sm:hidden">
-      <MobileTableHeader t={t} isDark={isDark} sortConfig={sortConfig} onSort={onSort} language={language} />
+      <StockTableHeader
+        t={t}
+        isDark={isDark}
+        sortConfig={sortConfig}
+        onSort={onSort}
+        variant="mobile"
+        language={language}
+      />
 
       <table className="w-full min-w-0 table-fixed border-separate border-spacing-0 text-left">
         <colgroup>
@@ -53,6 +42,7 @@ export default function StockTableMobile({
           language={language}
           exchangeRates={exchangeRates}
           variant="mobile"
+          onStockSelect={onStockSelect}
         />
       </table>
     </div>

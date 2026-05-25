@@ -48,6 +48,7 @@ export default function StockTableBody({
   language,
   exchangeRates,
   variant,
+  onStockSelect,
 }) {
   const styles = BODY_STYLES[variant];
 
@@ -73,36 +74,57 @@ export default function StockTableBody({
 
   return (
     <tbody className={`${isDark ? 'divide-white/10' : 'divide-black/10'} divide-y text-sm`}>
-      {stocks.map((stock) => (
-        <tr key={stock.ticker} className={isDark ? 'hover:bg-white/[0.04]' : 'hover:bg-neutral-950/[0.03]'}>
-          <td className={`${isDark ? 'text-stone-500' : 'text-neutral-400'} ${styles.rank}`}>
-            {stock.rank}
-          </td>
-          <td className={styles.company}>
-            <div className={`flex min-w-0 flex-col ${styles.companyGap}`}>
-              <span className={`${isDark ? 'text-stone-100' : 'text-neutral-950'} ${styles.companyName}`}>
-                {getCompanyDisplayName(stock, language)}
-              </span>
-              <span className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}>
-                {stock.ticker}
-              </span>
-            </div>
-          </td>
-          <td className={styles.priceCell}>
-            <div className={`flex flex-col ${styles.priceWrap}`}>
-              <span className={styles.price}>
-                {stock.price || t.noData}
-              </span>
-              <span className={`${stock.isPositive ? 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/15' : 'bg-rose-500/10 text-rose-500 ring-rose-500/15'} ${styles.change}`}>
-                {stock.chg}
-              </span>
-            </div>
-          </td>
-          <td className={styles.marketCap}>
-            {formatMarketCap(Number(stock.marketCapUsdTrillions), currency, stock.exchangeRates || exchangeRates, language)}
-          </td>
-        </tr>
-      ))}
+      {stocks.map((stock) => {
+        const handleSelect = () => {
+          onStockSelect?.(stock);
+        };
+        const interactiveStyles = onStockSelect
+          ? 'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-500'
+          : '';
+
+        return (
+          <tr
+            key={stock.ticker}
+            className={`${isDark ? 'hover:bg-white/[0.04]' : 'hover:bg-neutral-950/[0.03]'} ${interactiveStyles}`}
+            tabIndex={onStockSelect ? 0 : undefined}
+            role={onStockSelect ? 'button' : undefined}
+            aria-label={`${getCompanyDisplayName(stock, language)} ${t.resultLabel}`}
+            onClick={handleSelect}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              e.preventDefault();
+              handleSelect();
+            }}
+          >
+            <td className={`${isDark ? 'text-stone-500' : 'text-neutral-400'} ${styles.rank}`}>
+              {stock.rank}
+            </td>
+            <td className={styles.company}>
+              <div className={`flex min-w-0 flex-col ${styles.companyGap}`}>
+                <span className={`${isDark ? 'text-stone-100' : 'text-neutral-950'} ${styles.companyName}`}>
+                  {getCompanyDisplayName(stock, language)}
+                </span>
+                <span className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}>
+                  {stock.ticker}
+                </span>
+              </div>
+            </td>
+            <td className={styles.priceCell}>
+              <div className={`flex flex-col ${styles.priceWrap}`}>
+                <span className={styles.price}>
+                  {stock.price || t.noData}
+                </span>
+                <span className={`${stock.isPositive ? 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/15' : 'bg-rose-500/10 text-rose-500 ring-rose-500/15'} ${styles.change}`}>
+                  {stock.chg}
+                </span>
+              </div>
+            </td>
+            <td className={styles.marketCap}>
+              {formatMarketCap(Number(stock.marketCapUsdTrillions), currency, stock.exchangeRates || exchangeRates, language)}
+            </td>
+          </tr>
+        );
+      })}
     </tbody>
   );
 }
