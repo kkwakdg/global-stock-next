@@ -21,7 +21,7 @@ export default function HeaderControlsDesktop({
       <nav
         className={`${isDark ? 'border-white/10 bg-neutral-950/90' : 'border-white/80 bg-white/[0.88]'} liquid-header relative border-b px-6 py-3 lg:px-8`}
       >
-        <div className="absolute right-8 top-4 z-10">
+        <div className="absolute right-8 top-4 z-50">
           <QuickSettings
             t={t}
             isDark={isDark}

@@ -15,6 +15,12 @@ const CURRENCY_SYMBOLS = {
   JPY: '¥',
 };
 
+const CURRENCY_OPTION_ORDER = [
+  CURRENCIES.KRW,
+  CURRENCIES.USD,
+  CURRENCIES.JPY,
+];
+
 function SettingPicker({
   id,
   label,
@@ -84,7 +90,7 @@ function SettingPicker({
           id={menuId}
           role="listbox"
           aria-labelledby={id}
-          className={`${isDark ? 'apple-menu-dark bg-neutral-900/[0.88] ring-white/[0.12]' : 'apple-menu bg-white/[0.88] ring-black/[0.08]'} absolute right-0 top-[calc(100%+0.5rem)] z-50 w-44 overflow-hidden rounded-2xl p-1.5 ring-1 backdrop-blur-2xl`}
+          className={`${isDark ? 'apple-menu-dark bg-neutral-900 ring-white/[0.12]' : 'apple-menu bg-white ring-black/[0.08]'} absolute right-0 top-[calc(100%+0.5rem)] z-50 w-44 overflow-hidden rounded-2xl p-1.5 ring-1`}
         >
           {options.map((option) => {
             const selected = option.value === value;
@@ -132,7 +138,7 @@ export default function QuickSettings({
     value,
     label,
   }));
-  const currencyOptions = Object.values(CURRENCIES).map((value) => ({
+  const currencyOptions = CURRENCY_OPTION_ORDER.map((value) => ({
     value,
     label: value,
   }));
