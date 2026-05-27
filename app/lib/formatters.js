@@ -27,6 +27,46 @@ function formatUsdMarketCap(usdTrillions, locale) {
   return `$${formattedValue} ${unit}`;
 }
 
+function getCurrencyRateToUsd(currency, exchangeRates) {
+  if (currency === CURRENCIES.USD) return 1;
+
+  const rate = Number(exchangeRates?.[currency]);
+  return Number.isFinite(rate) && rate > 0 ? rate : 0;
+}
+
+export function convertCurrencyAmount(value, sourceCurrency, targetCurrency, exchangeRates) {
+  const sourceRate = getCurrencyRateToUsd(sourceCurrency, exchangeRates);
+  const targetRate = getCurrencyRateToUsd(targetCurrency, exchangeRates);
+
+  if (!Number.isFinite(value) || value <= 0 || sourceRate <= 0 || targetRate <= 0) {
+    return null;
+  }
+
+  return (value / sourceRate) * targetRate;
+}
+
+export function formatStockPrice(value, sourceCurrency, targetCurrency, exchangeRates, language) {
+  const locale = LOCALE_BY_LANGUAGE[language] || LOCALE_BY_LANGUAGE.en;
+  const convertedValue = convertCurrencyAmount(value, sourceCurrency, targetCurrency, exchangeRates);
+
+  if (!Number.isFinite(convertedValue)) {
+    return getNoDataText(language);
+  }
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: targetCurrency,
+      currencyDisplay: 'narrowSymbol',
+      maximumFractionDigits: [CURRENCIES.JPY, CURRENCIES.KRW].includes(targetCurrency) ? 0 : 2,
+    }).format(convertedValue);
+  } catch {
+    return `${targetCurrency} ${new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 2,
+    }).format(convertedValue)}`;
+  }
+}
+
 function formatKrwMarketCap(usdTrillions, exchangeRates, locale) {
   const krwTrillions = usdTrillions * Number(exchangeRates?.KRW);
 

@@ -222,6 +222,7 @@ export function formatStock(stock, krwExchangeRate, exchangeRates) {
     marketCapUsdTrillions: marketCapUsd / 1e12,
     marketCap: formatTrillion(marketCapUsd),
     priceNumber: stock.regularMarketPrice,
+    priceCurrency: String(stock.currency || 'USD').toUpperCase(),
     price: formatPrice(stock.regularMarketPrice, stock.currency),
     chg: formatChangePercent(changePercent),
     isPositive: Number.isFinite(changePercent) ? changePercent >= 0 : true,

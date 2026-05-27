@@ -1,5 +1,5 @@
 import { getCompanyDisplayName } from '../lib/companyNames';
-import { formatMarketCap } from '../lib/formatters';
+import { formatMarketCap, formatStockPrice } from '../lib/formatters';
 
 const BODY_STYLES = {
   desktop: {
@@ -125,7 +125,13 @@ export default function StockTableBody({
             <td className={styles.priceCell}>
               <div className={`flex flex-col ${styles.priceWrap}`}>
                 <span className={styles.price}>
-                  {stock.price || t.noData}
+                  {formatStockPrice(
+                    Number(stock.priceNumber),
+                    stock.priceCurrency || currency,
+                    currency,
+                    stock.exchangeRates || exchangeRates,
+                    language
+                  )}
                 </span>
                 <span className={`${stock.isPositive ? 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/15' : 'bg-rose-500/10 text-rose-500 ring-rose-500/15'} ${styles.change}`}>
                   {stock.chg}

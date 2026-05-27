@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { companyMatchesQuery, getCompanyDisplayName } from '../lib/companyNames';
 import { fetchJsonWithTimeout } from '../lib/fetchJson';
-import { CURRENCIES, formatMarketCap } from '../lib/formatters';
+import { CURRENCIES, formatMarketCap, formatStockPrice } from '../lib/formatters';
 import {
   DEFAULT_LANGUAGE,
   TRANSLATIONS,
@@ -142,7 +142,13 @@ export default function useStockDashboard() {
     return {
       name: getCompanyDisplayName(searchResult, language) || t.noData,
       ticker: searchResult.ticker || t.noData,
-      price: searchResult.price || t.noData,
+      price: formatStockPrice(
+        Number(searchResult.priceNumber),
+        searchResult.priceCurrency || currency,
+        currency,
+        searchResult.exchangeRates || exchangeRates,
+        language
+      ),
       chg: searchResult.chg || t.noData,
       marketCap: formatMarketCap(
         Number(searchResult.marketCapUsdTrillions),
