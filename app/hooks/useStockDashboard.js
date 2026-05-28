@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useRouter } from 'next/navigation';
 import { companyMatchesQuery, getCompanyDisplayName } from '../lib/companyNames';
 import { fetchJsonWithTimeout } from '../lib/fetchJson';
 import { CURRENCIES, formatMarketCap, formatStockPrice } from '../lib/formatters';
@@ -111,6 +112,7 @@ function getMatchingTableStocks(stocks, query, language) {
 }
 
 export default function useStockDashboard() {
+  const router = useRouter();
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadErrorKey, setLoadErrorKey] = useState('');
@@ -118,6 +120,8 @@ export default function useStockDashboard() {
   const [searchResult, setSearchResult] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [stockNewsResult, setStockNewsResult] = useState(null);
+  const [stockNewsErrorResult, setStockNewsErrorResult] = useState(null);
   const [theme, setTheme] = useState('light');
   const detectedLanguage = useSyncExternalStore(
     subscribeToLanguagePreference,
@@ -157,8 +161,18 @@ export default function useStockDashboard() {
         language
       ),
       isPositive: Boolean(searchResult.isPositive),
+      rawName: searchResult.name || '',
     };
   }, [currency, exchangeRates, language, searchResult, t.noData]);
+  const stockNewsMatchesSelection =
+    stockNewsResult?.ticker === searchResult?.ticker &&
+    stockNewsResult?.language === language;
+  const stockNewsErrorMatchesSelection =
+    stockNewsErrorResult?.ticker === searchResult?.ticker &&
+    stockNewsErrorResult?.language === language;
+  const stockNews = stockNewsMatchesSelection ? stockNewsResult.data : null;
+  const stockNewsError = stockNewsErrorMatchesSelection ? stockNewsErrorResult.message : '';
+  const stockNewsLoading = modalOpen && Boolean(searchResult?.ticker) && !stockNews && !stockNewsError;
 
   const searchSuggestions = useMemo(() => {
     const query = searchQuery.trim();
@@ -217,6 +231,58 @@ export default function useStockDashboard() {
     };
   }, [modalOpen]);
 
+  useEffect(() => {
+    const ticker = searchResult?.ticker;
+
+    if (!modalOpen || !ticker) {
+      return undefined;
+    }
+
+    let ignore = false;
+    const params = new URLSearchParams({
+      ticker,
+      language,
+    });
+    const newsCompanyName = searchResult.name || modalData?.name;
+
+    if (newsCompanyName) {
+      params.set('name', newsCompanyName);
+    }
+
+    if (modalData?.name) {
+      params.set('displayName', modalData.name);
+    }
+
+    fetchJsonWithTimeout(`/api/stock-news?${params.toString()}`)
+      .then((data) => {
+        if (ignore) return;
+        setStockNewsResult({ ticker, language, data });
+        setStockNewsErrorResult(null);
+      })
+      .catch((err) => {
+        if (ignore) return;
+        console.error('Stock news load error:', err);
+        setStockNewsErrorResult({
+          ticker,
+          language,
+          message: err.name === 'AbortError' ? t.stockNewsTimeout : t.stockNewsError,
+        });
+        setStockNewsResult(null);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [
+    language,
+    modalData?.name,
+    modalOpen,
+    searchResult?.name,
+    searchResult?.ticker,
+    t.stockNewsError,
+    t.stockNewsTimeout,
+  ]);
+
   const performSearch = useCallback(async (rawQuery) => {
     const query = rawQuery.trim();
     if (!query) return;
@@ -230,8 +296,10 @@ export default function useStockDashboard() {
       }
 
       setSearchResult(data);
+      setStockNewsResult(null);
+      setStockNewsErrorResult(null);
       setSearchQuery('');
-      setModalOpen(true);
+      router.push(`/stocks/${encodeURIComponent(data.ticker)}`);
     } catch (err) {
       alert(err.name === 'AbortError'
         ? t.searchTimeout
@@ -240,14 +308,16 @@ export default function useStockDashboard() {
     } finally {
       setSearchLoading(false);
     }
-  }, [language, stockData, t.searchError, t.searchTimeout]);
+  }, [language, router, stockData, t.searchError, t.searchTimeout]);
 
   const openStockModal = useCallback((stock) => {
     if (!stock) return;
 
     setSearchResult(stock);
-    setModalOpen(true);
-  }, []);
+    setStockNewsResult(null);
+    setStockNewsErrorResult(null);
+    router.push(`/stocks/${encodeURIComponent(stock.ticker)}`);
+  }, [router]);
 
   const handleSearch = useCallback(async (e) => {
     e.preventDefault();
@@ -266,6 +336,8 @@ export default function useStockDashboard() {
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
+    setStockNewsResult(null);
+    setStockNewsErrorResult(null);
   }, []);
 
   return {
@@ -277,6 +349,9 @@ export default function useStockDashboard() {
     searchSuggestions,
     modalOpen,
     modalData,
+    stockNews,
+    stockNewsLoading,
+    stockNewsError,
     isDark,
     language,
     currency,

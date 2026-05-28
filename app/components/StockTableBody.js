@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getCompanyDisplayName } from '../lib/companyNames';
 import { formatMarketCap, formatStockPrice } from '../lib/formatters';
 
@@ -77,6 +78,7 @@ export default function StockTableBody({
   return (
     <tbody className={`${isDark ? 'divide-white/10' : 'divide-black/10'} divide-y text-sm`}>
       {stocks.map((stock) => {
+        const stockHref = `/stocks/${encodeURIComponent(stock.ticker)}`;
         const handleSelect = () => {
           onStockSelect?.(stock);
         };
@@ -103,13 +105,21 @@ export default function StockTableBody({
             </td>
             <td className={styles.company}>
               <div className={`flex min-w-0 flex-col ${styles.companyGap}`}>
-                <span className={`${isDark ? 'text-stone-100' : 'text-neutral-950'} ${styles.companyName}`}>
+                <Link
+                  href={stockHref}
+                  onClick={(event) => event.stopPropagation()}
+                  className={`${isDark ? 'text-stone-100' : 'text-neutral-950'} ${styles.companyName}`}
+                >
                   {getCompanyDisplayName(stock, language)}
-                </span>
+                </Link>
                 <span className="flex min-w-0 items-center gap-1.5">
-                  <span className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}>
+                  <Link
+                    href={stockHref}
+                    onClick={(event) => event.stopPropagation()}
+                    className={`${isDark ? 'bg-white/10 text-stone-300 ring-white/10' : 'bg-neutral-950/[0.06] text-neutral-600 ring-black/5'} ${styles.ticker}`}
+                  >
                     {stock.ticker}
-                  </span>
+                  </Link>
                   {stock.listingFlag && (
                     <span
                       className={`${isDark ? 'bg-white/10 ring-white/10' : 'bg-neutral-950/[0.04] ring-black/5'} ${styles.flag}`}
